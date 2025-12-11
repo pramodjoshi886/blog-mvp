@@ -7,19 +7,17 @@
     "build": "next build",
     "start": "next start"
   },
-  "dependencies": {
-    "@vercel/postgres": "^0.10.0",
-    "better-sqlite3": "^12.5.0",
-    "canvas-confetti": "^1.9.4",
-    "fs-extra": "^11.3.2",
-    "next": "16.0.8",
-    "react": "19.2.1",
-    "react-dom": "19.2.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "typescript": "^5"
-  }
+  "@vercel/postgres": "^0.10.0",
+  "canvas-confetti": "^1.9.4",
+  "fs-extra": "^11.3.2",
+  "next": "16.0.8",
+  "react": "19.2.1",
+  "react-dom": "19.2.1"
+},
+"devDependencies": {
+  "@types/node": "^20",
+  "@types/react": "^19",
+  "@types/react-dom": "^19",
+  "typescript": "^5"
+}
 }
