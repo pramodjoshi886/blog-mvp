@@ -8,8 +8,10 @@ export default async function CategoryPage({ params }) {
     const { category: rawCategory } = await params;
     const category = rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1);
 
-    const posts = db.prepare('SELECT * FROM posts WHERE category = ? ORDER BY published_at DESC')
-        .all(category);
+    const { rows: posts } = await db.query(
+        'SELECT * FROM posts WHERE category = $1 ORDER BY published_at DESC',
+        [category]
+    );
 
     return (
         <div>

@@ -5,16 +5,18 @@ export async function POST(request) {
     try {
         const { email } = await request.json();
 
-        if (!email || !email.includes('@')) {
-            return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
+        // Basic regex for email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
         }
 
         try {
-            const stmt = db.prepare('INSERT INTO subscribers (email) VALUES (?)');
-            stmt.run(email);
+            await db.query('INSERT INTO subscribers (email) VALUES ($1)', [email]);
             return NextResponse.json({ success: true });
         } catch (err) {
-            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            // Postgres error code for unique_violation
+            if (err.code === '23505') {
                 return NextResponse.json({ error: 'Email already subscribed' }, { status: 409 });
             }
             throw err;

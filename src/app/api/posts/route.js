@@ -8,16 +8,18 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
 
-        let query = 'SELECT * FROM posts ORDER BY published_at DESC';
+        let query = 'SELECT * FROM posts';
         const params = [];
 
         if (category) {
-            query = 'SELECT * FROM posts WHERE category = ? ORDER BY published_at DESC';
+            query += ' WHERE category = $1';
             params.push(category);
         }
 
-        const posts = db.prepare(query).all(...params);
-        return NextResponse.json({ posts });
+        query += ' ORDER BY published_at DESC';
+
+        const { rows } = await db.query(query, params);
+        return NextResponse.json({ posts: rows });
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -45,16 +47,17 @@ export async function POST(request) {
             const filename = Date.now() + '_' + imageFile.name.replace(/\s/g, '_');
             const uploadPath = path.join(process.cwd(), 'public/uploads', filename);
 
+            // Warning: In Vercel, this file will be temporary and lost on redeploy.
+            // Use Vercel Blob for permanent storage.
             await writeFile(uploadPath, buffer);
             imageUrl = `/uploads/${filename}`;
         }
 
-        const stmt = db.prepare(`
+        const { rows } = await db.query(`
       INSERT INTO posts (title, slug, summary, content, category, is_featured, image_url, read_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-        const result = stmt.run(
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id
+    `, [
             title,
             slug,
             summary,
@@ -63,9 +66,9 @@ export async function POST(request) {
             isFeatured ? 1 : 0,
             imageUrl,
             readTime || 5
-        );
+        ]);
 
-        return NextResponse.json({ success: true, id: result.lastInsertRowid });
+        return NextResponse.json({ success: true, id: rows[0].id });
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

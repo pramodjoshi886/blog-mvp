@@ -5,29 +5,23 @@ import AdPlaceholder from '@/components/AdPlaceholder';
 // Force dynamic since we read from DB directly
 export const dynamic = 'force-dynamic';
 
-function getPosts(searchParams) {
-  let query = 'SELECT * FROM posts';
-  const params = [];
-  const filters = [];
-
+async function getPosts(searchParams) {
   if (searchParams?.search) {
-    filters.push('(title LIKE ? OR summary LIKE ?)');
     const term = `%${searchParams.search}%`;
-    params.push(term, term);
+    const { rows } = await db.query(
+      'SELECT * FROM posts WHERE title ILIKE $1 OR summary ILIKE $1 ORDER BY published_at DESC',
+      [term]
+    );
+    return rows;
   }
 
-  if (filters.length > 0) {
-    query += ' WHERE ' + filters.join(' AND ');
-  }
-
-  query += ' ORDER BY published_at DESC';
-
-  return db.prepare(query).all(...params);
+  const { rows } = await db.query('SELECT * FROM posts ORDER BY published_at DESC');
+  return rows;
 }
 
 export default async function Home({ searchParams }) {
   const sp = await searchParams;
-  const posts = getPosts(sp);
+  const posts = await getPosts(sp);
 
   const isSearching = !!sp?.search;
 

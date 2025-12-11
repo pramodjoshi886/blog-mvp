@@ -6,15 +6,15 @@ import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-function getPost(slug) {
-    const update = db.prepare('UPDATE posts SET views = views + 1 WHERE slug = ?');
-    update.run(slug);
-    return db.prepare('SELECT * FROM posts WHERE slug = ?').get(slug);
+async function getPost(slug) {
+    await db.query('UPDATE posts SET views = views + 1 WHERE slug = $1', [slug]);
+    const { rows } = await db.query('SELECT * FROM posts WHERE slug = $1', [slug]);
+    return rows[0];
 }
 
 export default async function ArticlePage({ params }) {
     const { slug } = await params;
-    const post = getPost(slug);
+    const post = await getPost(slug);
 
     if (!post) {
         notFound();
