@@ -1,5 +1,6 @@
 import './globals.css';
 import Header from '../components/Header';
+import GoogleAdSense from '../components/GoogleAdSense';
 
 export const metadata = {
     title: 'Modern Blog MVP',
@@ -11,6 +12,7 @@ export default function RootLayout({ children }) {
         <html lang="en">
             <body>
                 <Header />
+                <GoogleAdSense publisherId="ca-pub-8615879653416448" />
                 <main className="container">
                     {children}
                 </main>

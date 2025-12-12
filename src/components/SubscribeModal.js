@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 
 export default function SubscribeModal({ isOpen, onClose }) {
     const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [message, setMessage] = useState('');
 
@@ -25,7 +26,7 @@ export default function SubscribeModal({ isOpen, onClose }) {
             const res = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, name })
             });
 
             const data = await res.json();
@@ -34,6 +35,7 @@ export default function SubscribeModal({ isOpen, onClose }) {
                 setStatus('success');
                 setMessage('Thank you!');
                 setEmail('');
+                setName('');
 
                 // Confetti Burst
                 confetti({
@@ -74,6 +76,13 @@ export default function SubscribeModal({ isOpen, onClose }) {
                         <p>Get the latest articles delivered to your inbox.</p>
 
                         <form onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Your Name"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                disabled={status === 'loading'}
+                            />
                             <input
                                 type="email"
                                 placeholder="your@email.com"

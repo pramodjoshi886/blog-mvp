@@ -3,15 +3,15 @@ import db from '@/lib/db';
 
 export async function POST(request) {
     try {
-        const { email } = await request.json();
+        const { email, name } = await request.json();
 
         if (!email || !email.includes('@')) {
             return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
         }
 
         try {
-            const stmt = db.prepare('INSERT INTO subscribers (email) VALUES (?)');
-            stmt.run(email);
+            const stmt = db.prepare('INSERT INTO subscribers (email, name) VALUES (?, ?)');
+            stmt.run(email, name);
             return NextResponse.json({ success: true });
         } catch (err) {
             if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
